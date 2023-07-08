@@ -31,7 +31,7 @@ To be documented
 
 To be documented
 
-##Contributing
+## Contributing
 
 Contributions to this repository are welcome. If you find any issues or want to suggest improvements, please create a GitHub issue or submit a pull request. Make sure to follow the existing code style and include relevant tests with your changes.
 
