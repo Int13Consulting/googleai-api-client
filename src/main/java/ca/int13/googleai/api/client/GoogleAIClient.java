@@ -24,6 +24,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package ca.int13.googleai.api.client;
 
 import ca.int13.googleai.api.client.classes.PredictRequest;
+import ca.int13.googleai.api.client.classes.Prediction;
+import ca.int13.googleai.api.client.classes.Predictions;
 import com.google.gson.Gson;
 import java.io.Closeable;
 import java.io.IOException;
@@ -44,7 +46,7 @@ public class GoogleAIClient implements Closeable {
     private final boolean closeClient;
     private final AsyncHttpClient client;
     private static final Version version = new Version();
-    private final String authToken;
+    private String authToken;
     private final String url;
     private boolean closed = false;
     Gson gson = new Gson();
@@ -55,6 +57,10 @@ public class GoogleAIClient implements Closeable {
         this.url = "https://" + apiEndpoint + "/v1/projects/" + projectName + "/locations/us-central1/publishers/google/models/" + aiModel;
         this.authToken = authToken;
         closeClient = true;
+    }
+    
+    public void updateAuthToken(String authToken) {
+       this.authToken = authToken;
     }
 
     //////////////////////////////////////////////////////////////////////
@@ -83,15 +89,16 @@ public class GoogleAIClient implements Closeable {
         return version.getBuildName();
     }
     
-    public String submitPredictRequest(PredictRequest predictRequest) throws Exception {
+    public Predictions submitPredictRequest(PredictRequest predictRequest) throws Exception {
         //chat/completions
         Future<Response> f = client.executeRequest(buildRequest("POST", ":predict", gson.toJson(predictRequest)));
         Response r = f.get();
         if (r.getStatusCode() != 200) {
-
+            System.out.println(gson.toJson(predictRequest));
             throw new Exception("Could not get prediction result - HTTP Status was: " + r.getStatusCode());
         } else {
-            return r.getResponseBody();
+        //    System.out.println(gson.toJson(r.getResponseBody()));
+            return gson.fromJson(r.getResponseBody(), Predictions.class);
 
         }
     }

@@ -26,7 +26,8 @@ package ca.int13.googleai.api.client;
 public class Version {
 
     /*
-        
+        0.0.5 - support refreshing the auth token
+        0.0.3 - Update to return a Prediction object 
         0.0.1 - Initial release for testing
 
      */
@@ -34,7 +35,7 @@ public class Version {
 
     }
 
-    private final String buildNumber = "0.0.2";
+    private final String buildNumber = "0.0.5";
     private final String buildName = "Sleeping Sickness";
     private final String author = "Matthew M. Gamble";
 
