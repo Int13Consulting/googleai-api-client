@@ -19,8 +19,7 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
-
+ */
 package ca.int13.googleai.api.client;
 
 import ca.int13.googleai.api.client.classes.PredictRequest;
@@ -58,9 +57,9 @@ public class GoogleAIClient implements Closeable {
         this.authToken = authToken;
         closeClient = true;
     }
-    
+
     public void updateAuthToken(String authToken) {
-       this.authToken = authToken;
+        this.authToken = authToken;
     }
 
     //////////////////////////////////////////////////////////////////////
@@ -88,7 +87,7 @@ public class GoogleAIClient implements Closeable {
     public String getBuildName() {
         return version.getBuildName();
     }
-    
+
     public Predictions submitPredictRequest(PredictRequest predictRequest) throws Exception {
         //chat/completions
         Future<Response> f = client.executeRequest(buildRequest("POST", ":predict", gson.toJson(predictRequest)));
@@ -97,13 +96,20 @@ public class GoogleAIClient implements Closeable {
             System.out.println(gson.toJson(predictRequest));
             throw new Exception("Could not get prediction result - HTTP Status was: " + r.getStatusCode());
         } else {
-        //    System.out.println(gson.toJson(r.getResponseBody()));
-            return gson.fromJson(r.getResponseBody(), Predictions.class);
-
+            //    System.out.println(gson.toJson(r.getResponseBody()));
+            // Clean up any whitespace from the reponse to make things cleaner for clients
+            Predictions preditions = gson.fromJson(r.getResponseBody(), Predictions.class);
+            for (int i = 0; i < preditions.getPredictions().size(); i++) {
+                preditions.getPredictions().get(i).setContent(preditions.getPredictions().get(i).getContent().trim());
+                if (preditions.getPredictions().get(i).getContent().startsWith("output:")) {
+                    preditions.getPredictions().get(i).setContent(preditions.getPredictions().get(i).getContent().substring(8));
+                }
+            }
+            return preditions;
         }
+
     }
 
-    
     private Request buildRequest(String type, String subUrl) {
         RequestBuilder builder = new RequestBuilder(type);
         Request request = builder.setUrl(this.url + subUrl)
